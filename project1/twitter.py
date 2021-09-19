@@ -8,8 +8,10 @@ import tweepy
 
 class Twitter:
     def __init__(self):
-        self.auth = tweepy.OAuthHandler("", "")
-        self.auth.set_access_token("", "")
+        self.auth = tweepy.OAuthHandler("PI4E6fSPT3N9IpIhL8zULRfAL",
+                                        "HWr7ic4K0J6C0SwK4UowIyXlPAhlms9D8rF0kBGXXVRo1WrUm8")
+        self.auth.set_access_token("1432842215294967814-ZOaowZCPpFIRoIPtE3jlX6U95aXFQf",
+                                   "CXTZYbXMuSKweopmdGlW3dtPqyRnbVvZYT1ahAMZ4VhJ1")
         self.api = tweepy.API(self.auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
     def _meet_basic_tweet_requirements(self):
@@ -24,6 +26,16 @@ class Twitter:
         Use user_timeline api to fetch POI related tweets, some postprocessing may be required.
         :return: List
         '''
+        tweets = self.api.user_timeline(screen_name="ABdeVilliers17", count=10, include_rts=True)
+
+        # public_tweets = self.api.search(q = 'covid', count=10, lang = "english")
+
+        print(len(tweets))
+        # for tweet in tweets:
+        #   print(tweet.text)
+
+        return 'OK';
+
         raise NotImplementedError
 
     def get_tweets_by_lang_and_keyword(self):

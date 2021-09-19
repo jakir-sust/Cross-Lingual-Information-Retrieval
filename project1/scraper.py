@@ -48,6 +48,9 @@ def main():
 
             raw_tweets = twitter.get_tweets_by_poi_screen_name()  # pass args as needed
 
+            print("OK")
+            return
+
             processed_tweets = []
             for tw in raw_tweets:
                 processed_tweets.append(TWPreprocessor.preprocess(tw))
