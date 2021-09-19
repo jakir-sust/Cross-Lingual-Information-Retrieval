@@ -1,8 +1,8 @@
 {
-  "ip": "54.204.143.110",
+  "ip": "3.19.26.235",
   "port": "8983",
   "covid_keywords": ["covid", "corona", "coronavirus"],
   "vaccine_keywords": ["टीका", "फाइजर", "epavacúnate", "vaccine mandate",
   "vaccine side effect"],
-  "core": "IRF21_demo"
+  "core": "IRF_test_2"
 }
