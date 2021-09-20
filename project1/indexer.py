@@ -10,7 +10,7 @@ import requests
 # https://tecadmin.net/install-apache-solr-on-ubuntu/
 
 
-CORE_NAME = "IRF_test_2"
+CORE_NAME = "IRF_21"
 AWS_IP = "localhost"
 
 
@@ -115,4 +115,4 @@ if __name__ == "__main__":
     i.do_initial_setup()
     i.add_fields()
     #i.delete_fields()
-    i.create_documents(collection)
+    i.create_documents(collection[0])

@@ -43,17 +43,21 @@ def main():
     keywords = config["keywords"]
 
     for i in range(len(pois)):
+        break
         if pois[i]["finished"] == 0:
             print(f"---------- collecting tweets for poi: {pois[i]['screen_name']}")
 
-            raw_tweets = twitter.get_tweets_by_poi_screen_name()  # pass args as needed
+            raw_tweets = twitter.get_tweets_by_poi_screen_name(pois[i]['screen_name'], pois[i]['count'])  # pass args as needed
 
-            print("OK")
-            return
+
 
             processed_tweets = []
             for tw in raw_tweets:
                 processed_tweets.append(TWPreprocessor.preprocess(tw))
+
+
+            #print(processed_tweets[0], raw_tweets[0].created_at)
+            #return
 
             indexer.create_documents(processed_tweets)
 
@@ -66,6 +70,9 @@ def main():
 
             save_file(processed_tweets, f"poi_{pois[i]['id']}.pkl")
             print("------------ process complete -----------------------------------")
+            #print("OK")
+
+
 
     for i in range(len(keywords)):
         if keywords[i]["finished"] == 0:

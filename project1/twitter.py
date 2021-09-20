@@ -21,20 +21,24 @@ class Twitter:
         '''
         raise NotImplementedError
 
-    def get_tweets_by_poi_screen_name(self):
+    def get_tweets_by_poi_screen_name(self, screen_name, count):
         '''
         Use user_timeline api to fetch POI related tweets, some postprocessing may be required.
         :return: List
         '''
-        tweets = self.api.user_timeline(screen_name="ABdeVilliers17", count=10, include_rts=True)
+        #tweets = self.api.user_timeline(screen_name = screen_name, count = count, include_rts=True)
+        tweets = []
+
+        for status in tweepy.Cursor(self.api.user_timeline, screen_name= screen_name, tweet_mode="extended").items(count):
+            tweets.append(status)
 
         # public_tweets = self.api.search(q = 'covid', count=10, lang = "english")
 
-        print(len(tweets))
-        # for tweet in tweets:
-        #   print(tweet.text)
+        print("Total tweet scraped ====    ",len(tweets))
+        #for tweet in tweets:
+        #   print(tweet.id)
 
-        return 'OK';
+        return tweets;
 
         raise NotImplementedError
 

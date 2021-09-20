@@ -19,23 +19,58 @@ class TWPreprocessor:
         :return: dict
         '''
 
+        tweet_field = {}
+        tweet_field['id'] = tweet.id
+        if tweet.user.location == 'India' or tweet.user.location == 'México':
+            tweet_field['country'] = tweet.user.location
+        else:
+            tweet_field['country'] = 'USA'
+
+        tweet_field['tweet_lang'] = tweet.lang
+        tweet_field['tweet_text'] = tweet.full_text
+
+        text, emojis = _text_cleaner(tweet.full_text)
+        text_xx = 'text_' + tweet.lang
+        tweet_field[text_xx] = text
+
+        tweet_field['tweet_date'] = str(tweet.created_at)
+        tweet_field['verified'] = tweet.user.verified
+        tweet_field['poi_id'] = tweet.user.id
+        tweet_field['poi_name'] = tweet.user.screen_name
+        tweet_field['replied_to_tweet_id'] = tweet.in_reply_to_status_id
+        tweet_field['replied_to_user_id'] = tweet.in_reply_to_user_id
+
+        if tweet.in_reply_to_user_id == None:
+            tweet_field['reply_text'] = None
+
+        tweet_field['hashtags'] =_get_entities(tweet, 'hashtags')
+        tweet_field['mentions'] = _get_entities(tweet, 'mentions')
+        tweet_field['tweet_urls'] = _get_entities(tweet, 'urls')
+        tweet_field['tweet_emoticons'] = emojis
+        tweet_field['geolocation'] = tweet.geo
+
+        #print("Preprocess done")
+        #print(tweet_field)
+
+        return tweet_field
+
         raise NotImplementedError
 
 
 def _get_entities(tweet, type=None):
     result = []
     if type == 'hashtags':
-        hashtags = tweet['entities']['hashtags']
+        hashtags = tweet.entities['hashtags']
 
         for hashtag in hashtags:
             result.append(hashtag['text'])
     elif type == 'mentions':
-        mentions = tweet['entities']['user_mentions']
+        mentions = tweet.entities['user_mentions']
 
         for mention in mentions:
             result.append(mention['screen_name'])
     elif type == 'urls':
-        urls = tweet['entities']['urls']
+        urls = tweet.entities['urls']
 
         for url in urls:
             result.append(url['url'])
