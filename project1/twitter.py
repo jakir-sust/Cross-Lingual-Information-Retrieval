@@ -8,10 +8,10 @@ import tweepy
 
 class Twitter:
     def __init__(self):
-        self.auth = tweepy.OAuthHandler("PI4E6fSPT3N9IpIhL8zULRfAL",
-                                        "HWr7ic4K0J6C0SwK4UowIyXlPAhlms9D8rF0kBGXXVRo1WrUm8")
-        self.auth.set_access_token("1432842215294967814-ZOaowZCPpFIRoIPtE3jlX6U95aXFQf",
-                                   "CXTZYbXMuSKweopmdGlW3dtPqyRnbVvZYT1ahAMZ4VhJ1")
+        self.auth = tweepy.OAuthHandler("FxRHehioJ4sbBbTwdIEPXHKZY",
+                                        "qQZoJi70gvwgvNyFB3US1YiKcA7D66rBjAdB2TEV7NWjUE2CkR")
+        self.auth.set_access_token("1432842215294967814-Nm1cS4f7qxrDs6XY3EYpx1OYnnQ2ks",
+                                   "lmIkbR5TmX9oKNhBwd9uXDgCdFzB15UzblChUN7XZRFtb")
         self.api = tweepy.API(self.auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
     def _meet_basic_tweet_requirements(self):
@@ -42,11 +42,21 @@ class Twitter:
 
         raise NotImplementedError
 
-    def get_tweets_by_lang_and_keyword(self):
+    def get_tweets_by_lang_and_keyword(self, name, count, lang, country):
         '''
         Use search api to fetch keywords and language related tweets, use tweepy Cursor.
         :return: List
         '''
+
+        #tweets = api.search(q='covid', count=10, lang="en")
+        tweets = []
+
+        for status in tweepy.Cursor(self.api.search, q=name, lang = lang, tweet_mode="extended").items(count):
+            tweets.append(status)
+
+        print("Total tweet scraped ====    ", len(tweets),  name)
+
+        return tweets
         raise NotImplementedError
 
     def get_replies(self):

@@ -65,6 +65,10 @@ class Indexer:
         print("OK")
         print(self.connection.add(docs))
 
+    def solr_search(self):
+        results = self.connection.search(q='*:*', rows=1)
+        print(len(results))
+
     def add_fields(self):
         '''
         Define all the fields that are to be indexed in the core. Refer to the project doc for more details

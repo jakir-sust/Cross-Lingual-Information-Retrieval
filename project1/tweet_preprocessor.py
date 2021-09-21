@@ -12,7 +12,7 @@ import preprocessor
 
 class TWPreprocessor:
     @classmethod
-    def preprocess(cls, tweet):
+    def preprocess(cls, tweet, type):
         '''
         Do tweet pre-processing before indexing, make sure all the field data types are in the format as asked in the project doc.
         :param tweet:
@@ -21,7 +21,7 @@ class TWPreprocessor:
 
         tweet_field = {}
         tweet_field['id'] = tweet.id
-        if tweet.user.location == 'India' or tweet.user.location == 'México':
+        if tweet.user.location == 'India' or tweet.user.location == 'Mexico':
             tweet_field['country'] = tweet.user.location
         else:
             tweet_field['country'] = 'USA'
@@ -35,8 +35,10 @@ class TWPreprocessor:
 
         tweet_field['tweet_date'] = str(tweet.created_at)
         tweet_field['verified'] = tweet.user.verified
-        tweet_field['poi_id'] = tweet.user.id
-        tweet_field['poi_name'] = tweet.user.screen_name
+
+        if type == 'poi':
+            tweet_field['poi_id'] = tweet.user.id
+            tweet_field['poi_name'] = tweet.user.screen_name
         tweet_field['replied_to_tweet_id'] = tweet.in_reply_to_status_id
         tweet_field['replied_to_user_id'] = tweet.in_reply_to_user_id
 
@@ -47,7 +49,8 @@ class TWPreprocessor:
         tweet_field['mentions'] = _get_entities(tweet, 'mentions')
         tweet_field['tweet_urls'] = _get_entities(tweet, 'urls')
         tweet_field['tweet_emoticons'] = emojis
-        tweet_field['geolocation'] = tweet.geo
+        if tweet.geo != None:
+            tweet_field['geolocation'] = tweet.geo['coordinates']
 
         #print("Preprocess done")
         #print(tweet_field)
