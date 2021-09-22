@@ -40,7 +40,7 @@ def read_file(type, id):
 
 def reset_keyword(pois, keywords):
     for i in range(len(keywords)):
-        if keywords[i]["lang"] == 'hi':
+        if keywords[i]["lang"] == 'es':
             keywords[i]["finished"] = 0
             keywords[i]["collected"] = 0
         write_config({
@@ -94,13 +94,6 @@ def read_keyword(pois, keywords):
         write_config({
             "pois": pois, "keywords": keywords
         })
-def solr_search(indexer):
-    CORE_NAME = "IRF_21"
-    AWS_IP = "localhost"
-    solr_url = f'http://{AWS_IP}:8983/solr/'
-    connection = pysolr.Solr(solr_url + CORE_NAME, always_commit=True, timeout=5000000)
-    results = connection.search(q='*:*', rows = 1000)
-    print(len(results))
 
 def main():
     config = read_config()
@@ -112,8 +105,8 @@ def main():
 
     #read_keyword(pois, keywords)
     #reset_keyword(pois, keywords)
-    #indexer.solr_search()
-    #return
+    indexer.solr_search()
+    return
 
     for i in range(len(pois)):
         break

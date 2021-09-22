@@ -21,10 +21,12 @@ class TWPreprocessor:
 
         tweet_field = {}
         tweet_field['id'] = tweet.id
-        if tweet.user.location == 'India' or tweet.user.location == 'Mexico':
-            tweet_field['country'] = tweet.user.location
-        else:
+        if tweet.lang == 'es':
+            tweet_field['country'] = 'Mexico'
+        elif tweet.lang == 'en':
             tweet_field['country'] = 'USA'
+        else:
+            tweet_field['country'] = 'India'
 
         tweet_field['tweet_lang'] = tweet.lang
         tweet_field['tweet_text'] = tweet.full_text

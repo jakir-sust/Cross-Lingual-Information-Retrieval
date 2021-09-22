@@ -6,6 +6,9 @@ Institute: University at Buffalo
 import os
 import pysolr
 import requests
+import json
+import pandas as pd
+import pickle
 
 # https://tecadmin.net/install-apache-solr-on-ubuntu/
 
@@ -65,9 +68,8 @@ class Indexer:
         print("OK")
         print(self.connection.add(docs))
 
-    def solr_search(self):
-        results = self.connection.search(q='*:*', rows=1)
-        print(len(results))
+    def connection_object(self):
+        return self.connection
 
     def add_fields(self):
         '''
