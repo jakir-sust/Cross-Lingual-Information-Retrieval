@@ -4,7 +4,11 @@ Institute: University at Buffalo
 '''
 
 import demoji, re, datetime
+import emoji
 import preprocessor
+
+def remove_emoji(text):
+    return emoji.get_emoji_regexp().sub(u'', text)
 
 
 # demoji.download_codes()
@@ -26,12 +30,15 @@ class TWPreprocessor:
         elif tweet.lang == 'en':
             tweet_field['country'] = 'USA'
         else:
+            tweet.lang = 'hi'
             tweet_field['country'] = 'India'
 
         tweet_field['tweet_lang'] = tweet.lang
         tweet_field['tweet_text'] = tweet.full_text
 
         text, emojis = _text_cleaner(tweet.full_text)
+        if tweet_field['country'] == 'India':
+            text = remove_emoji(tweet.full_text)
         text_xx = 'text_' + tweet.lang
         tweet_field[text_xx] = text
 
@@ -46,6 +53,8 @@ class TWPreprocessor:
 
         if tweet.in_reply_to_user_id == None:
             tweet_field['reply_text'] = None
+        else:
+            tweet_field['reply_text'] = tweet_field['tweet_text']
 
         tweet_field['hashtags'] =_get_entities(tweet, 'hashtags')
         tweet_field['mentions'] = _get_entities(tweet, 'mentions')
