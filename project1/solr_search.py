@@ -177,12 +177,12 @@ class SolrSearch:
 
 def main(sol_search):
     connection = sol_search.connection
-    lang = 'USA'
+    lang = 'Mexico'
     search_query = 'country:' + lang
 
     print("Collecting data")
     results = solr_search_query(connection, query=search_query, rows=100000)
-    save_file(results, "Country_" + lang)
+    save_file(results, "Country_" + lang +".pkl")
 
     print("Saving done")
 
