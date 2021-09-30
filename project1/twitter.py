@@ -1,7 +1,3 @@
-'''
-@author: Souvik Das
-Institute: University at Buffalo
-'''
 
 import tweepy
 import datetime

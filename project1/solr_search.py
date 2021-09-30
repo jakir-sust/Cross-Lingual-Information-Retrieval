@@ -2,6 +2,12 @@ from indexer import Indexer
 import json
 import emoji
 import pickle
+import pandas as pd
+
+
+def save_file(data, filename):
+    df = pd.DataFrame(data)
+    df.to_pickle("data/all_data/" + filename)
 
 def remove_emoji(text):
     return emoji.get_emoji_regexp().sub(u'', text)
@@ -171,13 +177,19 @@ class SolrSearch:
 
 def main(sol_search):
     connection = sol_search.connection
-    search_query = 'tweet_lang:es'
+    lang = 'USA'
+    search_query = 'country:' + lang
+
+    print("Collecting data")
     results = solr_search_query(connection, query=search_query, rows=100000)
+    save_file(results, "Country_" + lang)
+
+    print("Saving done")
 
     #open_crowd_keyword_file()
     #solr_unique_check(connection, results)
-    poi_names = get_all_poi()
-    solr_remove_duplicate(connection, results, poi_names)
+    #poi_names = get_all_poi()
+    #solr_remove_duplicate(connection, results, poi_names)
     #modify_poi_name(connection, results)
     #modify_by_lang_country(connection,results)
 
