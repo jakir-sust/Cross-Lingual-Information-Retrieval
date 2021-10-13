@@ -1,8 +1,3 @@
-'''
-@author: Sougata Saha
-Institute: University at Buffalo
-'''
-
 from linkedlist import LinkedList
 from collections import OrderedDict
 
@@ -11,6 +6,7 @@ class Indexer:
     def __init__(self):
         """ Add more attributes if needed"""
         self.inverted_index = OrderedDict({})
+        self.dic_token_count = OrderedDict({})
 
     def get_index(self):
         """ Function to get the index.
@@ -28,7 +24,16 @@ class Indexer:
             If a term is not present in the index, then add the term to the index & initialize a new postings list (linked list).
             If a term is present, then add the document to the appropriate position in the posstings list of the term.
             To be implemented."""
-        raise NotImplementedError
+
+        if term_ not in self.inverted_index.keys():
+            lkd_list = LinkedList()
+            lkd_list.insert_at_end(doc_id_)
+            self.inverted_index[term_] = lkd_list
+        else:
+            lkd_list = self.inverted_index[term_]
+            lkd_list.insert_at_end(doc_id_)
+
+        #raise NotImplementedError
 
     def sort_terms(self):
         """ Sorting the index by terms.
@@ -41,6 +46,12 @@ class Indexer:
     def add_skip_connections(self):
         """ For each postings list in the index, add skip pointers.
             To be implemented."""
+        for term in self.get_index().keys():
+            lkd_list = self.inverted_index[term]
+            lkd_list.add_skip_connections()
+
+        print("Skip connection added")
+        return
         raise NotImplementedError
 
     def calculate_tf_idf(self):

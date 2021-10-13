@@ -1,8 +1,3 @@
-'''
-@author: Sougata Saha
-Institute: University at Buffalo
-'''
-
 from tqdm import tqdm
 from preprocessor import Preprocessor
 from indexer import Indexer
@@ -64,8 +59,20 @@ class ProjectRunner:
                 doc_id, document = self.preprocessor.get_doc_id(line)
                 tokenized_document = self.preprocessor.tokenizer(document)
                 self.indexer.generate_inverted_index(doc_id, tokenized_document)
+        
+        #print(self.indexer.inverted_index)
+        #print(len(self.indexer.inverted_index.keys()))
+
         self.indexer.sort_terms()
         self.indexer.add_skip_connections()
+        '''
+        for token in self.indexer.inverted_index.keys():
+            posting_list = self.indexer.inverted_index[token].traverse_list()
+            if len(posting_list) == 13:
+                skip_posting_list = self.indexer.inverted_index[token].traverse_skips()
+                print(token, len(posting_list), posting_list)
+                print(skip_posting_list)
+        #'''
         self.indexer.calculate_tf_idf()
 
     def sanity_checker(self, command):
