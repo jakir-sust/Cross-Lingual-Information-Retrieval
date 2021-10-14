@@ -59,6 +59,9 @@ class ProjectRunner:
                 doc_id, document = self.preprocessor.get_doc_id(line)
                 tokenized_document = self.preprocessor.tokenizer(document)
                 self.indexer.generate_inverted_index(doc_id, tokenized_document)
+
+                #if self.indexer.dic_token_count[doc_id] != len(tokenized_document):
+                 #   print(self.indexer.dic_token_count[doc_id], len(tokenized_document), tokenized_document)
         
         #print(self.indexer.inverted_index)
         #print(len(self.indexer.inverted_index.keys()))
@@ -108,7 +111,7 @@ class ProjectRunner:
                     along with sorting by tf-idf scores."""
             raise NotImplementedError
 
-            input_term_arr = []  # Tokenized query. To be implemented.
+            input_term_arr = self.preprocessor.tokenizer(document)  # Tokenized query. To be implemented.
 
             for term in input_term_arr:
                 postings, skip_postings = None, None

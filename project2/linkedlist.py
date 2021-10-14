@@ -11,8 +11,8 @@ class Node:
         self.value = value
         self.next = next
         self.next_skip = next
-        self.token_freq = 0
-        self.token_cnt = 0
+        self.token_freq = 1
+        self.tf_score = 0
 
 
 class LinkedList:
@@ -100,6 +100,8 @@ class LinkedList:
                 self.start_node = new_node
                 self.start_node.next = current_node
                 self.length = self.length + 1
+            else:
+                self.start_node.token_freq += 1
             return
 
         elif self.end_node.value <= value:
@@ -107,6 +109,8 @@ class LinkedList:
                 self.end_node.next = new_node
                 self.end_node = new_node
                 self.length = self.length + 1
+            else:
+                self.end_node.token_freq += 1
             return
 
         else:
@@ -117,6 +121,19 @@ class LinkedList:
                 new_node.next = current_node.next
                 current_node.next = new_node
                 self.length = self.length + 1
+            else:
+                current_node.next.token_freq += 1
             return
         raise NotImplementedError
+
+    def assign_tf_idf_score(self, term, dic_token_count, total_document):
+        n = self.start_node
+        cnt = 0
+        while n is not None:
+            n.tf_score = n.token_freq / dic_token_count[n.value]
+            n = n.next
+        self.idf = total_document / self.length
+
+
+        #print(term, self.idf)
 

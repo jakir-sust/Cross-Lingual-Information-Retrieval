@@ -7,6 +7,7 @@ class Indexer:
         """ Add more attributes if needed"""
         self.inverted_index = OrderedDict({})
         self.dic_token_count = OrderedDict({})
+        self.total_document = set() 
 
     def get_index(self):
         """ Function to get the index.
@@ -16,8 +17,15 @@ class Indexer:
     def generate_inverted_index(self, doc_id, tokenized_document):
         """ This function adds each tokenized document to the index. This in turn uses the function add_to_index
             Already implemented."""
+        
+        uniqueWords = []
+        self.total_document.add(doc_id)
         for t in tokenized_document:
             self.add_to_index(t, doc_id)
+            if t not in uniqueWords:
+                uniqueWords.append(t)
+        
+        self.dic_token_count[doc_id] = len(uniqueWords)
 
     def add_to_index(self, term_, doc_id_):
         """ This function adds each term & document id to the index.
@@ -50,11 +58,16 @@ class Indexer:
             lkd_list = self.inverted_index[term]
             lkd_list.add_skip_connections()
 
-        print("Skip connection added")
+        #print("Skip connection added")
         return
         raise NotImplementedError
 
     def calculate_tf_idf(self):
         """ Calculate tf-idf score for each document in the postings lists of the index.
             To be implemented."""
-        raise NotImplementedError
+       # print(len(self.total_document))
+        for term in self.get_index().keys():
+            lkd_list = self.inverted_index[term]
+            lkd_list.assign_tf_idf_score(term, self.dic_token_count, len(self.total_document))
+
+        #raise NotImplementedError
