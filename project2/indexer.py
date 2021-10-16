@@ -22,8 +22,8 @@ class Indexer:
         self.total_document.add(doc_id)
         for t in tokenized_document:
             self.add_to_index(t, doc_id)
-            if t not in uniqueWords:
-                uniqueWords.append(t)
+            #if t not in uniqueWords:
+            uniqueWords.append(t)
         
         self.dic_token_count[doc_id] = len(uniqueWords)
 

@@ -12,7 +12,7 @@ class Node:
         self.next = next
         self.next_skip = next
         self.token_freq = 1
-        self.tf_score = 0
+        self.tf_score = 0.0
 
 
 class LinkedList:
@@ -126,7 +126,26 @@ class LinkedList:
             return
         raise NotImplementedError
 
+    def traverse_tf_score(self):
+        traversal = []
+        if self.start_node is None:
+            return
+        else:
+            """ Write logic to traverse the linked list.
+                To be implemented."""
+            n = self.start_node
+            # Start traversal from head, and go on till you reach None
+            while n is not None:
+                traversal.append(n.tf_score)
+                n = n.next
+            return traversal
+
+    def get_idf(self):
+        return self.idf
+
     def assign_tf_idf_score(self, term, dic_token_count, total_document):
+
+        #print("++++++++++++++++++++++++++++++++++++++++++++++++=       ", total_document)
         n = self.start_node
         cnt = 0
         while n is not None:

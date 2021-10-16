@@ -24,7 +24,8 @@ class Preprocessor:
         
         #print("Original ---->>>>  ", text)
         text = text.lower()
-        text = re.sub(r'[^A-Za-z0-9 ]+', '', text)
+        #text = re.sub(r'[-]+', ' ', text)
+        text = re.sub(r'[^A-Za-z0-9 ]+', ' ', text)
         text = re.sub(' +', ' ', text)
         tokenized_text = text.split()
 
