@@ -23,7 +23,7 @@ class ProjectRunner:
         self.preprocessor = Preprocessor()
         self.indexer = Indexer()
 
-    def _merge(self, list1, list2):
+    def _merge1(self, list1, list2):
         """ Implement the merge algorithm to merge 2 postings list at a time.
             Use appropriate parameters & return types.
             While merging 2 postings list, preserve the maximum tf-idf value of a document.
@@ -43,8 +43,7 @@ class ProjectRunner:
                 ind2 += 1
             num_comparision += 1
         return results, num_comparision
-
-    def _merge_skip(self, list1, list2):
+    def _merge_skip1(self, list1, list2):
         num_comparision = 0
         results = []
         ind1, ind2 = 0, 0
@@ -61,9 +60,9 @@ class ProjectRunner:
                 num_comparision += 1
 
             elif list1[ind1] < list2[ind2]:
-                if (ind1%skip_length1 == 0 and ind1+skip_length1 < len(list1)) and list1[ind1 + skip_length1] < list2[ind2]:
+                if (ind1%skip_length1 == 0 and ind1+skip_length1 < len(list1)) and list1[ind1 + skip_length1] <= list2[ind2]:
                     #num_comparision += 1
-                    while (ind1%skip_length1 == 0 and ind1+skip_length1 < len(list1)) and list1[ind1 + skip_length1] < list2[ind2]:
+                    while (ind1%skip_length1 == 0 and ind1+skip_length1 < len(list1)) and list1[ind1 + skip_length1] <= list2[ind2]:
                         cur_skip1 += 1
                         ind1 = cur_skip1*skip_length1
                         num_comparision += 1
@@ -71,9 +70,9 @@ class ProjectRunner:
                     ind1 += 1
                     num_comparision += 1
             else:
-                if (ind2%skip_length2 == 0 and ind2+skip_length2 <len(list2)) and list2[ind2 + skip_length2] < list1[ind1]:
+                if (ind2%skip_length2 == 0 and ind2+skip_length2 <len(list2)) and list2[ind2 + skip_length2] <= list1[ind1]:
                     #num_comparision += 1
-                    while (ind2%skip_length2 == 0 and ind2+skip_length2 <len(list2)) and list2[ind2 + skip_length2] < list1[ind1]:
+                    while (ind2%skip_length2 == 0 and ind2+skip_length2 <len(list2)) and list2[ind2 + skip_length2] <= list1[ind1]:
                         cur_skip2 += 1
                         ind2 = cur_skip2*skip_length2
                         num_comparision += 1
@@ -83,7 +82,7 @@ class ProjectRunner:
 
         return results, num_comparision
 
-    def _daat_and_skip(self, query_term_posting, query_term_skip_posting):
+    def _daat_and_skip1(self, query_term_posting, query_term_skip_posting):
         query_term_posting = dict(sorted(query_term_posting.items(), key=lambda x: len(x[1]), reverse=False))
         query_term_skip_posting = dict(sorted(query_term_skip_posting.items(), key=lambda x: len(x[1]), reverse=False))
 
@@ -94,15 +93,36 @@ class ProjectRunner:
         current_results = query_term_posting[first_key]
         current_results_skip = query_term_skip_posting[first_key]
 
-
+        '''
         for index, key in enumerate(query_term_posting):
             if index == 0:
                 continue
             second_list = query_term_posting[key]
-            current_results, comparision = self._merge_skip(current_results, second_list)
+            current_results, comparision = self._merge_skip1(current_results, second_list)
             num_comparision += comparision
 
         results = current_results
+        return results, num_comparision
+        #'''
+
+        current_results = self.indexer.get_index()[first_key]
+        #current_results.add_skip_connections()
+        for index, key in enumerate(query_term_posting):
+            if index == 0:
+                continue
+            second_list = self.indexer.get_index()[key]
+            #second_list.add_skip_connections()
+            current_results, comparision = self._merge_skip(current_results, second_list)
+            results = current_results
+
+            new_key = first_key + key + '@#@'
+            for doc_id in current_results:
+                self.indexer.add_to_index(new_key, doc_id)
+
+            current_results = self.indexer.get_index()[new_key]
+            current_results.add_skip_connections()
+
+            num_comparision += comparision
 
         return results, num_comparision
 
@@ -122,7 +142,7 @@ class ProjectRunner:
         for doc in document:
             doc_score = 0.0
             term_cnt = 0
-            match_cnt =0
+            match_cnt = 0
             for term in input_term_arr:
                 term_cnt += 1
                 posting_list = query_term_posting[term]
@@ -131,22 +151,82 @@ class ProjectRunner:
                 for p_list, p_tf_score in zip(posting_list, posting_tf_score):
                     if p_list == doc:
                         match_cnt += 1
+                        idf = self.indexer.get_index()[term].get_idf()
+                        #idf = 1.0 * len(self.indexer.total_document) / len(posting_list)
                         #doc_score += self.indexer.get_index()[term].get_idf()
-                        doc_score += (self.indexer.get_index()[term].get_idf() * p_tf_score)
-                        break
+                        #p_tf_score = 1.0 * self.all_document[doc].count(term)
+                        #p_tf_score /= self.indexer.dic_token_count[doc]
+                        #if doc == 69375 or doc == 65840:
+                        #   print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ",term, doc, idf, p_tf_score, self.indexer.dic_token_count[doc])
+
+                        doc_score = max(doc_score, p_tf_score * idf)
+                        #break
             if term_cnt == match_cnt:
                 document_score[doc] = doc_score
 
         document_score = OrderedDict(sorted(document_score.items(), key=lambda x: (-x[1], x[0])))
-        print(document_score)
+        #print(document_score)
 
         for doc in document_score.keys():
             results.append(doc)
 
         return results
 
+    def _merge(self, list1, list2, skip = 0, sort = 0):
+        """ Implement the merge algorithm to merge 2 postings list at a time.
+            Use appropriate parameters & return types.
+            While merging 2 postings list, preserve the maximum tf-idf value of a document.
+            To be implemented."""
 
-    def _daat_and(self, input_term_arr):
+        num_comparision = 0
+        results = []
+
+        list1 = list1.start_node
+        list2 = list2.start_node
+
+        if skip == 0:
+            while list1 and list2:
+                if list1.value == list2.value:
+                    results.append(list1.value)
+                    list1 = list1.next
+                    list2 = list2.next
+                elif list1.value < list2.value:
+                    list1 = list1.next
+                else:
+                    list2 = list2.next
+                num_comparision += 1
+
+        elif skip == 1:
+            while list1 and list2:
+                # print(list1.value, list2.value, list1.has_skip, list2.has_skip, list2.next_skip.value)
+                if list1.value == list2.value:
+                    results.append(list1.value)
+                    list1 = list1.next
+                    list2 = list2.next
+                    num_comparision += 1
+
+                elif list1.value < list2.value:
+                    if list1 and list1.next_skip and list1.has_skip and list1.next_skip.value <= list2.value:
+                        # num_comparision += 1
+                        while list1 and list1.next_skip and list1.has_skip and list1.next_skip.value <= list2.value:
+                            list1 = list1.next_skip
+                            num_comparision += 1
+                    else:
+                        num_comparision += 1
+                        list1 = list1.next
+                else:
+                    if list2 and list2.next_skip and list2.has_skip and list2.next_skip.value <= list1.value:
+                        # num_comparision += 1
+                        while list2 and list2.next_skip and list2.has_skip and list2.next_skip.value <= list1.value:
+                            list2 = list2.next_skip
+                            num_comparision += 1
+                    else:
+                        num_comparision += 1
+                        list2 = list2.next
+
+        return results, num_comparision
+
+    def _daat_and(self, input_term_arr, skip = 0, sort = 0):
         """ Implement the DAAT AND algorithm, which merges the postings list of N query terms.
             Use appropriate parameters & return types.
             To be implemented."""
@@ -166,18 +246,56 @@ class ProjectRunner:
         results = []
         num_comparision = 0
 
+        '''
         current_results = query_term_posting[first_key]
         for index, key in enumerate(query_term_posting):
             if index == 0:
                 continue
             second_list = query_term_posting[key]
-            current_results, comparision = self._merge(current_results, second_list)
+            current_results, comparision = self._merge1(current_results, second_list)
             num_comparision += comparision
+        #'''
 
-        results = current_results
+        if skip == 0:
+            current_results = self.indexer.get_index()[first_key]
+            for index, key in enumerate(query_term_posting):
+                if index == 0:
+                    continue
+                second_list =  self.indexer.get_index()[key]
+                current_results, comparision = self._merge(current_results, second_list, 0)
+                results = current_results
 
-        skip_results, skip_comparision= self._daat_and_skip(query_term_posting, query_term_skip_posting)
-        return results, num_comparision, skip_results, skip_comparision
+                new_key = first_key + key + '#'
+                for doc_id in current_results:
+                    self.indexer.add_to_index(new_key, doc_id)
+
+                current_results = self.indexer.get_index()[new_key]
+                num_comparision += comparision
+
+        elif skip == 1:
+            current_results = self.indexer.get_index()[first_key]
+            # current_results.add_skip_connections()
+            for index, key in enumerate(query_term_posting):
+                if index == 0:
+                    continue
+                second_list = self.indexer.get_index()[key]
+                # second_list.add_skip_connections()
+                current_results, comparision = self._merge(current_results, second_list, 1)
+                results = current_results
+
+                new_key = first_key + key + '@#@'
+                for doc_id in current_results:
+                    self.indexer.add_to_index(new_key, doc_id)
+
+                current_results = self.indexer.get_index()[new_key]
+                current_results.add_skip_connections()
+
+                num_comparision += comparision
+
+        if sort == 1:
+            results = self._daat_and_tf_idf(input_term_arr, query_term_posting, query_term_skip_posting)
+
+        return results, num_comparision
 
     def _get_postings(self, term):
         """ Function to get the postings list of a term from the index.
@@ -203,6 +321,7 @@ class ProjectRunner:
                 doc_id, document = self.preprocessor.get_doc_id(line)
                 tokenized_document = self.preprocessor.tokenizer(document)
                 self.indexer.generate_inverted_index(doc_id, tokenized_document)
+
         self.indexer.sort_terms()
         self.indexer.add_skip_connections()
         self.indexer.calculate_tf_idf()
@@ -238,7 +357,6 @@ class ProjectRunner:
                 3. Get the DAAT AND query results & number of comparisons with & without skip pointers.
                 4. Get the DAAT AND query results & number of comparisons with & without skip pointers, 
                     along with sorting by tf-idf scores."""
-            #raise NotImplementedError
 
             input_term_arr = self.preprocessor.tokenizer(query)  # Tokenized query. To be implemented.
 
@@ -248,7 +366,7 @@ class ProjectRunner:
                 postings, skip_postings = None, None
 
                 if term in self.indexer.get_index().keys():
-                    postings = self.indexer.get_index()[term].traverse_list()
+                    postings = self._get_postings(term)
                     skip_postings = self.indexer.get_index()[term].traverse_skips()
 
                 """ Implement logic to populate initialize the above variables.
@@ -261,25 +379,17 @@ class ProjectRunner:
                 query_term_posting[term] = postings
                 query_term_skip_posting[term] = skip_postings
 
-           # print(query, query_term_posting.keys())
-
-            #break
             and_op_no_skip, and_op_skip, and_op_no_skip_sorted, and_op_skip_sorted = None, None, None, None
             and_comparisons_no_skip, and_comparisons_skip, \
                 and_comparisons_no_skip_sorted, and_comparisons_skip_sorted = None, None, None, None
             """ Implement logic to populate initialize the above variables.
                 The below code formats your result to the required format.
                 To be implemented."""
-            and_op_no_skip, and_comparisons_no_skip, and_op_skip, and_comparisons_skip = self._daat_and(input_term_arr)
-            and_op_no_skip_sorted = self._daat_and_tf_idf(input_term_arr, query_term_posting, query_term_skip_posting)
-            and_op_skip_sorted = and_op_no_skip_sorted
 
-            and_comparisons_no_skip_sorted = and_comparisons_no_skip
-            and_comparisons_skip_sorted = and_comparisons_skip
-
-
-            #and_op_skip, and_comparisons_skip = self._daat_and_skip(query_term_posting, query_term_skip_posting)
-
+            and_op_no_skip, and_comparisons_no_skip   = self._daat_and(input_term_arr, 0, 0)
+            and_op_skip, and_comparisons_skip = self._daat_and(input_term_arr, 1, 0)
+            and_op_no_skip_sorted, and_comparisons_no_skip_sorted = self._daat_and(input_term_arr, 0, 1)
+            and_op_skip_sorted, and_comparisons_skip_sorted = self._daat_and(input_term_arr, 1, 1)
 
             and_op_no_score_no_skip, and_results_cnt_no_skip = self._output_formatter(and_op_no_skip)
             and_op_no_score_skip, and_results_cnt_skip = self._output_formatter(and_op_skip)
@@ -306,11 +416,8 @@ class ProjectRunner:
             output_dict['daatAndSkipTfIdf'][query.strip()]['num_docs'] = and_results_cnt_skip_sorted
             output_dict['daatAndSkipTfIdf'][query.strip()]['num_comparisons'] = and_comparisons_skip_sorted
 
-            print(output_dict['daatAndTfIdf'])
-            #break
+            #print(output_dict['daatAndTfIdf'])
 
-        #output_dict = open('data/sample_output.json')
-        #output_dict = (json.load(output_dict))
         return output_dict
 
 
@@ -363,9 +470,9 @@ if __name__ == "__main__":
         this pre-loaded in memory index. """
     runner.run_indexer(corpus)
 
-    query_list = ["the novel coronavirus", "from an epidemic to a pandemic", "is hydroxychloroquine effective?"]
+    #query_list = ["the novel coronavirus", "from an epidemic to a pandemic", "is hydroxychloroquine effective?"]
     # query_list = ["hello world", "hello swimming", "swimming going", "random swimming"]
-    random_command = "self.indexer.get_index()['random'].traverse_list()"
-    runner.run_queries(query_list, random_command)
+    #random_command = "self.indexer.get_index()['random'].traverse_list()"
+    #runner.run_queries(query_list, random_command)
 
-    #app.run(host="0.0.0.0", port=9999)
+    app.run(host="0.0.0.0", port=9999)

@@ -13,6 +13,7 @@ class Node:
         self.next_skip = next
         self.token_freq = 1
         self.tf_score = 0.0
+        self.has_skip = 0
 
 
 class LinkedList:
@@ -51,7 +52,8 @@ class LinkedList:
             n = self.start_node
             # Start traversal from head, and go on till you reach None
             while n is not None:
-                traversal.append(n.value)
+                if n.has_skip:
+                    traversal.append(n.value)
                 n = n.next_skip
             return traversal
             raise NotImplementedError
@@ -67,19 +69,23 @@ class LinkedList:
         cur_skip_node = self.start_node
         self.skip_length = int(round(math.sqrt(self.length), 0))
         cnt = 0
+        cur_skip_node.has_skip = 1
         while n is not None:
             n = n.next
             cnt += 1
             if cnt == self.skip_length:
+                #if n is not None:
+                cur_skip_node.has_skip = 1
                 cnt = 0
                 cur_skip_node.next_skip = n
                 cur_skip_node = cur_skip_node.next_skip
         
         if cnt > 0:
-            cur_skip_node.next_skip = n
+            #if n is not None:
+             #   cur_skip_node.next_skip = n
+            cur_skip_node.has_skip = 1
             cur_skip_node = cur_skip_node.next_skip
-        return 
-        raise NotImplementedError
+        return
 
     def insert_at_end(self, value):
         """ Write logic to add new elements to the linked list.
@@ -149,7 +155,7 @@ class LinkedList:
         n = self.start_node
         cnt = 0
         while n is not None:
-            n.tf_score = n.token_freq / dic_token_count[n.value]
+            n.tf_score = 1.0 * n.token_freq / dic_token_count[n.value]
             n = n.next
         self.idf = total_document / self.length
 
