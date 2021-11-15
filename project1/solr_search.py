@@ -182,9 +182,9 @@ def main(sol_search):
 
     print("Collecting data")
     results = solr_search_query(connection, query=search_query, rows=100000)
-    save_file(results, "Country_" + lang +".pkl")
+    #save_file(results, "Country_" + lang +".pkl")
 
-    print("Saving done")
+    print("Saving done   ", len(results))
 
     #open_crowd_keyword_file()
     #solr_unique_check(connection, results)
